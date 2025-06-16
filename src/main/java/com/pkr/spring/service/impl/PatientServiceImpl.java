@@ -43,10 +43,6 @@ public class PatientServiceImpl implements PatientService{
 	public ResponseEntity<Page<Patient>> getAllPatient(int page, int size) {
 		try {
 			Pageable pageable = PageRequest.of(page, size);
-<<<<<<< HEAD
-			System.out.println(10/0);
-=======
->>>>>>> 6b4c2b8 (add project)
 			return new ResponseEntity<>(patientRepo.findAll(pageable), HttpStatus.OK);
 			
 		}catch(Exception e) {
@@ -60,7 +56,6 @@ public class PatientServiceImpl implements PatientService{
 	public Patient getPatientById(Long id) {
 		try {
 			Optional<Patient> patient = patientRepo.findById(id);
-			
 			return patient.orElse(null);
 			
 		}catch(Exception e) {
