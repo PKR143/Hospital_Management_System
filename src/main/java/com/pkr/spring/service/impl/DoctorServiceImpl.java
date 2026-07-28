@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.pkr.spring.models.Doctor;
 import com.pkr.spring.repository.DoctorRepo;
 import com.pkr.spring.service.DoctorService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 public class DoctorServiceImpl implements DoctorService{
 
@@ -23,47 +25,50 @@ public class DoctorServiceImpl implements DoctorService{
 	private DoctorRepo doctorRepo;
 	
 	@Override
-	public Doctor addDoctor(Doctor doctor) {
+	public ResponseEntity<Doctor> addDoctor(Doctor doctor) {
 		try {
 			doctorRepo.save(doctor);
-			return doctor;
+			return new ResponseEntity<>(doctor, HttpStatus.CREATED);
 			
 		}catch(Exception e) {
-			System.out.println("Error Message: "+e.getMessage());
+
 			logger.error("Error occured while adding doctor: {}",e.getMessage());
-			return null;
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 	}
 	
 	@Override
-	public Page<Doctor> getAllDoctor(int page,int size) {
+	public ResponseEntity<Page<Doctor>> getAllDoctor(int page,int size) {
 		try {
 			Pageable pageable = PageRequest.of(page, size);
-			return doctorRepo.findAll(pageable);
+			return new ResponseEntity<>(doctorRepo.findAll(pageable),HttpStatus.OK);
 			
 		}catch(Exception e) {
-			System.out.println("Error Message: "+e.getMessage());
+
 			logger.error("Error occured while fetching doctors: {}",e.getMessage());
-			return null;
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
 	@Override
-	public Doctor getDoctorById(Long id) {
+	public ResponseEntity<Doctor> getDoctorById(Long id) {
 		try {
 			Optional<Doctor> doctor = doctorRepo.findById(id);
-			return doctor.orElse(null);
+			if(doctor.isPresent())
+				return new ResponseEntity<>(doctor.get(), HttpStatus.FOUND);
+			else
+				return new ResponseEntity<>(null , HttpStatus.NOT_FOUND);
 			
 		}catch(Exception e) {
-			System.out.println("Error Message: "+e.getMessage());
+
 			logger.error("Error occured while fetching doctor by id {}: {}",id,e.getMessage());
-			return null;
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
 	@Override
-	public Doctor updateDoctor(Long id, Doctor doctor) {
+	public ResponseEntity<Doctor> updateDoctor(Long id, Doctor doctor) {
 		try {
 			Optional<Doctor> oldDoctor = doctorRepo.findById(id);
 			if(oldDoctor.isPresent()) {
@@ -72,29 +77,36 @@ public class DoctorServiceImpl implements DoctorService{
 				newDoctor.setName(doctor.getName());
 				newDoctor.setSpeciality(doctor.getSpeciality());
 				doctorRepo.save(newDoctor);
-				return newDoctor;
+				return new ResponseEntity<>(newDoctor, HttpStatus.ACCEPTED);
 			}else {
 				logger.error("doctor with id {} not found",id);
-				return null;
+				return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 			}
 			
 		}catch(Exception e) {
-			System.out.println("Error Message: "+e.getMessage());
+
 			logger.error("Error occured while updating doctor: {}",e.getMessage());
-			return null;
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
 	@Override
-	public void deleteDoctor(Long id) {
+	public ResponseEntity<String> deleteDoctor(Long id) {
 		try {
-			logger.info("Doctor deleted with {}",id);
-			doctorRepo.deleteById(id);
+
+			if(doctorRepo.findById(id).isPresent()){
+				logger.info("Doctor deleted with id {}",id);
+				doctorRepo.deleteById(id);
+				return new ResponseEntity<>("Doctor deleted successfully!", HttpStatus.OK);
+			}
+			else{
+				return new ResponseEntity<>("Doctor not found!", HttpStatus.NOT_FOUND);
+			}
 			
 		}catch(Exception e) {
-			System.out.println("Error Message: "+e.getMessage());
+
 			logger.error("Error occured while adding doctor: {}",e.getMessage());
-			
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	

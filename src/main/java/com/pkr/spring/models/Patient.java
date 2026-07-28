@@ -1,5 +1,7 @@
 package com.pkr.spring.models;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,9 +25,21 @@ public class Patient {
 	private Long id;
 	
 	private String name;
-	
-	private int age;
-	
+	private LocalDate dob;
+	private Integer age;
 	private String gender;
+	private String disease;
+	private String maritalStatus;
+	private String address;
+	private String city;
+	private String state;
+	private String country;
+	private Integer pin;
+	private String mailId;
+	private String contactNum;
+	private String emergencyContactNum;
+	private String bloodGroup;
+	private LocalDate createdAt;
+	private LocalDate updatedAt; 	
 	
 }
